@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JAANGo Traffic System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="logo">JAANGo</h1>
+        
+        <div class="main-layout">
+            <!-- Video Player Area -->
+            <div class="video-container">
+                <div class="screen">
+                    <img src="{{ url_for('video_feed') }}" width="100%">
+                </div>
+                
+                <div class="controls">
+                    <div class="btn-group">
+                        <button class="play-btn">▶</button>
+                        <button class="pause-btn">||</button>
+                        <button class="stop-btn">■</button>
+                    </div>
+                    <div class="db-icon">🗄️</div>
+                </div>
+            </div>
+
+            <!-- Traffic Light Area -->
+            <div class="traffic-light-box">
+                <div id="red" class="light"></div>
+                <div id="yellow" class="light"></div>
+                <div id="green" class="light"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update the Traffic Light UI every 500ms
+        setInterval(function() {
+            fetch('/get_status')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
+                    document.getElementById(data.signal.toLowerCase()).classList.add('active');
+                });
+        }, 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+body {
+    background-color: #1a1a1a;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.logo {
+    color: #a389d4;
+    font-size: 40px;
+    margin-bottom: 30px;
+}
+
+.main-layout {
+    display: flex;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+.video-container {
+    width: 800px;
+}
+
+.screen {
+    background-color: #9da3ad;
+    aspect-ratio: 16/9;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    align-items: center;
+}
+
+.btn-group button {
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 5px;
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.play-btn { background-color: #88c47e; }
+.pause-btn { background-color: #f6d155; }
+.stop-btn { background-color: #ca4a4a; }
+
+.db-icon {
+    font-size: 35px;
+    color: #a389d4;
+}
+
+/* Traffic Light Styling */
+.traffic-light-box {
+    background-color: #4a454a;
+    width: 120px;
+    height: 350px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 20px 0;
+}
+
+.light {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #333; /* Default off state */
+    border: 2px solid #222;
+}
+
+#red.active { background-color: #ca4a4a; box-shadow: 0 0 20px #ca4a4a; }
+#yellow.active { background-color: #f6d155; box-shadow: 0 0 20px #f6d155; }
+#green.active { background-color: #88c47e; box-shadow: 0 0 20px #88c47e; }
