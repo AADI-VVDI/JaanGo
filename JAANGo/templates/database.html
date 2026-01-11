@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: sans-serif; padding: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #333; padding: 10px; border-radius: 8px; }
+        img { width: 100%; border-radius: 5px; margin-top: 10px; }
+        .back { color: #a389d4; text-decoration: none; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back">← Return to Monitor</a>
+    <h1>Traffic Violations Log</h1>
+    <div class="grid">
+        {% for v in violations %}
+        <div class="card">
+            <strong>Time:</strong> {{ v[1] }}<br>
+            <strong>Type:</strong> {{ v[2] }}
+            <img src="{{ url_for('static', filename='violations/' + v[3]) }}">
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

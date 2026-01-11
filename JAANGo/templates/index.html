@@ -1,31 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JAANGo Traffic System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>JAANGo Traffic AI</title>
 </head>
 <body>
     <div class="container">
         <h1 class="logo">JAANGo</h1>
-        
         <div class="main-layout">
-            <!-- Video Player Area -->
             <div class="video-container">
-                <div class="screen">
-                    <img src="{{ url_for('video_feed') }}" width="100%">
+                <div class="screen" id="screen">
+                    <img id="video-stream" src="" width="100%" style="display:none;">
+                    <div id="placeholder">SYSTEM STOPPED</div>
                 </div>
-                
                 <div class="controls">
                     <div class="btn-group">
-                        <button class="play-btn">▶</button>
-                        <button class="pause-btn">||</button>
-                        <button class="stop-btn">■</button>
+                        <button onclick="toggleSys('start')" class="play-btn">START</button>
+                        <button onclick="toggleSys('stop')" class="stop-btn">STOP</button>
+                        <button onclick="toggleSys('mute')" id="mute-btn" class="mute-btn">MUTE</button>
                     </div>
-                    <div class="db-icon">🗄️</div>
+                    <a href="/database" class="db-link" title="Database View">
+                        <div class="db-icon">🗄️</div>
+                    </a>
                 </div>
             </div>
-
-            <!-- Traffic Light Area -->
             <div class="traffic-light-box">
                 <div id="red" class="light"></div>
                 <div id="yellow" class="light"></div>
@@ -35,14 +33,29 @@
     </div>
 
     <script>
-        // Update the Traffic Light UI every 500ms
-        setInterval(function() {
-            fetch('/get_status')
-                .then(response => response.json())
-                .then(data => {
-                    document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
-                    document.getElementById(data.signal.toLowerCase()).classList.add('active');
-                });
+        const img = document.getElementById('video-stream');
+        const placeholder = document.getElementById('placeholder');
+
+        function toggleSys(action) {
+            fetch('/control/' + action).then(r => r.json()).then(data => {
+                if (action === 'start') {
+                    img.src = "{{ url_for('video_feed') }}?" + new Date().getTime();
+                    img.style.display = 'block';
+                    placeholder.style.display = 'none';
+                } else if (action === 'stop') {
+                    img.src = "";
+                    img.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+                document.getElementById('mute-btn').innerText = data.muted ? "UNMUTE" : "MUTE";
+            });
+        }
+
+        setInterval(() => {
+            fetch('/get_status').then(r => r.json()).then(data => {
+                document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
+                if (data.running) document.getElementById(data.signal.toLowerCase()).classList.add('active');
+            });
         }, 500);
     </script>
 </body>
