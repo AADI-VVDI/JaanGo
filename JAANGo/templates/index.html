@@ -1,40 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAANGo | Intelligence Traffic Systems</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>JAANGo Traffic AI</title>
 </head>
 <body>
-    <div class="container">
-        <h1 class="logo">JAANGo</h1>
-        <div class="main-layout">
-            <div class="video-container">
-                <div class="screen" id="screen">
-                    <img id="video-stream" src="" width="100%" style="display:none;">
-                    <div id="placeholder">SYSTEM STOPPED</div>
-                </div>
-                <div class="controls">
-                    <div class="btn-group">
-                        <button onclick="toggleSys('start')" class="play-btn">START</button>
-                        <button onclick="toggleSys('stop')" class="stop-btn">STOP</button>
-                        <button onclick="toggleSys('mute')" id="mute-btn" class="mute-btn">MUTE</button>
-                    </div>
-                    <a href="/database" class="db-link" title="Database View">
-                        <div class="db-icon">🗄️</div>
-                    </a>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <span class="logo-icon">J</span>
+                <h1 class="logo-text">JAANGo<span>.ai</span></h1>
+            </div>
+            
+            <nav class="controls-nav">
+                <div class="nav-label">System Control</div>
+                <button onclick="toggleSys('start')" class="btn btn-start">
+                    <i data-lucide="play"></i> <span>START ENGINE</span>
+                </button>
+                <button onclick="toggleSys('stop')" class="btn btn-stop">
+                    <i data-lucide="square"></i> <span>TERMINATE</span>
+                </button>
+                <button onclick="toggleSys('mute')" id="mute-btn" class="btn btn-mute">
+                    <i data-lucide="volume-2"></i> <span>AUDIO: ON</span>
+                </button>
+
+                <div class="nav-label">Data Management</div>
+                <a href="/database" class="btn btn-db">
+                    <i data-lucide="database"></i> <span>VIOLATION LOGS</span>
+                </a>
+            </nav>
+
+            <div class="system-stats">
+                <div class="stat-item">
+                    <span class="label">STATUS:</span>
+                    <span id="status-tag" class="status-offline">OFFLINE</span>
                 </div>
             </div>
-            <div class="traffic-light-box">
-                <div id="red" class="light"></div>
-                <div id="yellow" class="light"></div>
-                <div id="green" class="light"></div>
+        </aside>
+
+        <!-- Main Monitoring Feed -->
+        <main class="viewport">
+            <header class="viewport-header">
+                <div class="header-info">
+                    <h2>Live Monitoring Feed</h2>
+                    <p>ROI: Zebra_Left | Stop_Center</p>
+                </div>
+                <div id="signal-text" class="signal-indicator-text">SIGNAL: STANDBY</div>
+            </header>
+
+            <div class="video-frame">
+                <div id="placeholder" class="video-placeholder">
+                    <i data-lucide="video-off" size="48"></i>
+                    <p>AI ENGINE OFFLINE</p>
+                </div>
+                <img id="video-stream" src="" class="stream-img">
+                
+                <!-- HUD Overlays -->
+                <div class="hud-overlay top-left">REC ●</div>
+                <div class="hud-overlay top-right">1280x720 | 30 FPS</div>
+                <div id="alert-bar" class="alert-banner">PEDESTRIAN ON CROSSWALK - AUDIO ACTIVE</div>
             </div>
-        </div>
+        </main>
+
+        <!-- Traffic Light Panel -->
+        <aside class="signal-panel">
+            <div class="traffic-housing">
+                <div id="red" class="lamp"></div>
+                <div id="yellow" class="lamp"></div>
+                <div id="green" class="lamp"></div>
+            </div>
+            <div class="panel-label">SIGNAL STATE</div>
+        </aside>
     </div>
 
     <script>
+        // Initialize Icons
+        lucide.createIcons();
+
         const img = document.getElementById('video-stream');
         const placeholder = document.getElementById('placeholder');
+        const alertBar = document.getElementById('alert-bar');
+        const statusTag = document.getElementById('status-tag');
+        const signalText = document.getElementById('signal-text');
 
         function toggleSys(action) {
             fetch('/control/' + action).then(r => r.json()).then(data => {
@@ -42,19 +95,35 @@
                     img.src = "{{ url_for('video_feed') }}?" + new Date().getTime();
                     img.style.display = 'block';
                     placeholder.style.display = 'none';
+                    statusTag.className = 'status-online';
+                    statusTag.innerText = 'ONLINE';
                 } else if (action === 'stop') {
                     img.src = "";
                     img.style.display = 'none';
-                    placeholder.style.display = 'block';
+                    placeholder.style.display = 'flex';
+                    statusTag.className = 'status-offline';
+                    statusTag.innerText = 'OFFLINE';
+                    signalText.innerText = 'SIGNAL: STANDBY';
                 }
-                document.getElementById('mute-btn').innerText = data.muted ? "UNMUTE" : "MUTE";
+                
+                const muteBtn = document.getElementById('mute-btn');
+                muteBtn.innerHTML = data.muted ? 
+                    '<i data-lucide="volume-x"></i> <span>AUDIO: MUTED</span>' : 
+                    '<i data-lucide="volume-2"></i> <span>AUDIO: ON</span>';
+                lucide.createIcons();
             });
         }
 
         setInterval(() => {
             fetch('/get_status').then(r => r.json()).then(data => {
-                document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
-                if (data.running) document.getElementById(data.signal.toLowerCase()).classList.add('active');
+                if (data.running) {
+                    document.querySelectorAll('.lamp').forEach(l => l.classList.remove('active'));
+                    document.getElementById(data.signal.toLowerCase()).classList.add('active');
+                    signalText.innerText = 'SIGNAL: ' + data.signal;
+                    
+                    // Show alert bar if pedestrian present (backend logic handles this)
+                    // You can add a 'ped_present' key to your get_status JSON
+                }
             });
         }, 500);
     </script>

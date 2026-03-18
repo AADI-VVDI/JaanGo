@@ -148,13 +148,24 @@ def control(action):
         sys.is_playing_sound = False
     elif action == 'mute': sys.is_muted = not sys.is_muted
     return jsonify(running=sys.is_running, muted=sys.is_muted)
-
+'''
 @app.route('/get_status')
 def get_status():
     light = "GREEN"
     if "YELLOW" in sys.signal_state or "TO_Y" in sys.signal_state: light = "YELLOW"
     elif sys.signal_state == "RED": light = "RED"
     return jsonify(signal=light, running=sys.is_running)
+'''
+@app.route('/get_status')
+def get_status():
+    light = "GREEN"
+    if "YELLOW" in sys.signal_state or "TO_Y" in sys.signal_state: light = "YELLOW"
+    elif sys.signal_state == "RED": light = "RED"
+    return jsonify(
+        signal=light, 
+        running=sys.is_running,
+        ped_present=sys.ped_present # Add this for HUD alert
+    )
 
 @app.route('/database')
 def database():
